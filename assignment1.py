@@ -24,6 +24,8 @@
 # A = 64x32, B = 32x32
 # A = 64x64, B = 64x64
 
+
+
 def matmul_with_slice():
     try:
         M = int(input("Enter number of rows for Matrix A: "))
@@ -61,11 +63,31 @@ def matmul_with_slice():
                 #C[i:i+slize_size, j:j+slice_size] += A_src_slice * B_src_slice
                 print(f"cnt= {cnt}")
 
+#-------------------------                
+# High level Algorithm
+#------------------------
+# 1. Get row and columns of two matrices that needs to get multiplied
+# 2. M and K - rows and columns of A 
+# 3. K and N - rows and columns of B
+# 4. slice_size = 32 is given
+# 5. C offset is assumed to be last 4096 bytes in the local memory
+# 6. NUM_CORE is 4 and NUM_MMUNIT is 4 hence at max 16 multiplication is possible parallely
+# 7. If number of multiplication exceeds 16 (MAX_MULT) then no core is free to call matmul is what is assumed initially.
+# 8. Else
+# 9. Compute offsets of each 32 x 32 slice of A and B 
+# 10. If A slice takes 0 to 4096 bytes then B slice takes next 4096 offset.
+# 11. Load them in to the local memory with the computed offset if they are not previously loaded.
+# 12. Set a flag holding co-ordinates of the A and B matrix slices along with its core number against the computed offset,- once A or B matrix slices are loaded.
+# 13. If they are already loaded then just get their offsets (mem location they were loaded earlier)
+# 14. Call a matrix multiplication indicating where slices of matrix sitting in the local memory
+# 15. Save the result back in C offset. Load the result as a silce of C matrix back to the global memory.
+# 16. Once all 4 mat mul units are loaded and full, go to the next core and repeat from step 9, for that many number of slices of rows and columns of matrix A and B.
 
 def multicore_mmunit_matmul_with_slice():
     try:
         M = int(input("Enter number of rows for Matrix A: "))
         K = int(input("Enter number of columns for Matrix A: "))
+    #singlecore_mmunit_matmul_with_slice()
 
         Kb = int(input("Enter number of rows for Matrix B: "))
         N = int(input("Enter number of columns for Matrix B: "))
@@ -78,6 +100,8 @@ def multicore_mmunit_matmul_with_slice():
 
     NUM_CORE = 4
     NUM_MMUNIT = 4
+    MAX_MULT = 16
+
     slice_size = 32
     slicesize_bytes = ((slice_size) * (slice_size) * 4) # 4096, 4 bytes for the float 
     C_offset = 512000 - 4096
@@ -98,8 +122,12 @@ def multicore_mmunit_matmul_with_slice():
     corecnt=0
     mmunit_num = 0
     #if core_flag.get(corecnt,False) is False:
+    
+    if num_mult > MAX_MULT:
+        return
 
     for mmunit_i in range(0, ra): #Each Core has 4 Matmul units
+        print("{")
         for mmunit_j in range(0, cb):
     
             #C[0:32 , 0:32] = 0
@@ -126,22 +154,21 @@ def multicore_mmunit_matmul_with_slice():
                 #print(f"A_offset: {A_core_mmunit_memloc_flags.get((corecnt, A_row_range, A_row_range+slice_size, A_col_range, A_col_range+slice_size))}")
 
                 if A_core_mmunit_memloc_flags.get((corecnt, A_row_range, A_row_range+slice_size, A_col_range, A_col_range+slice_size)) is None:
-                    print("{")
                     print(f"\ncp_global_to_local <A, [{A_row_range}:{A_row_range+slice_size}:1, {A_col_range}:{A_col_range+slice_size}:1]>, core={corecnt}, <{A_offset} /local_mem/, [{A_row_range}:{A_row_range+slice_size}:1], [{A_col_range}:{A_col_range+slice_size}:1]>\n")
                     A_core_mmunit_memloc_flags[(corecnt, A_row_range, A_row_range+slice_size, A_col_range, A_col_range+slice_size)] = A_offset 
                 else:
                     A_offset = A_core_mmunit_memloc_flags.get((corecnt, A_row_range, A_row_range+slice_size, A_col_range, A_col_range+slice_size)) 
                     print(f"A is already available in the local memory and its offset is {A_offset}\n")
-                    print("{")
+                    #print("{")
 
                 if B_core_mmunit_memloc_flags.get((corecnt, B_row_range, B_row_range+slice_size, B_col_range, B_col_range+slice_size)) is None:
                     print(f"\ncp_global_to_local <B, [{B_row_range}:{B_row_range+slice_size}:1, {B_col_range}:{B_col_range+slice_size}:1]>, core={corecnt}, <{B_offset} /local_mem/, [{B_row_range}:{B_row_range+slice_size}:1], [{B_col_range}:{B_col_range+slice_size}:1]>\n")
                     B_core_mmunit_memloc_flags[(corecnt, B_row_range, B_row_range+slice_size, B_col_range, B_col_range+slice_size)] = B_offset 
-                    print("}\n")
+                    #print("}\n")
                 else:
                     B_offset = B_core_mmunit_memloc_flags.get((corecnt, B_row_range, B_row_range+slice_size, B_col_range, B_col_range+slice_size))
                     print(f"B is already available in the local memory and its offset is {B_offset}\n")
-                    print("}\n")
+                    #print("}\n")
 
                 print(f"\nmatmul core={corecnt}, matmul_unit={mmunit_num}, <{A_offset} /local_mem/, [{A_row_range}:{A_row_range+slice_size}:1], [{A_col_range}:{A_col_range+slice_size}:1]>, < {B_offset} /local_mem/, [{B_row_range}:{B_row_range+slice_size}:1], [{B_col_range}:{B_col_range+slice_size}:1]>, < {C_offset} /local_mem/, [{C_row_range}:{C_row_range+slice_size}:1], [{C_col_range}:{C_col_range+slice_size}:1]>, accumulator=True\n")
 
@@ -149,7 +176,9 @@ def multicore_mmunit_matmul_with_slice():
 
                 mmunit_num+=1
                 mmunit_num=mmunit_num % NUM_MMUNIT
-                if mmunit_num == 0: corecnt+=1
+                if mmunit_num == 0: 
+                    corecnt+=1
+                    print("}\n")
 
 
 # Run the program
