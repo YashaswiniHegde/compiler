@@ -1,0 +1,156 @@
+Enter number of rows for Matrix A: Enter number of columns for Matrix A: Enter number of rows for Matrix B: Enter number of columns for Matrix B: 
+Reset the C array
+
+
+cp_global_to_local <C, [0:32:1, 0:32:1]>, core=0, <507904 /local_mem/, [0:32:1], [0:32:1]>
+
+Core number: 0, Matmul unit number: 0
+
+{
+
+cp_global_to_local <A, [0:32:1, 0:32:1]>, core=0, <0 /local_mem/, [0:32:1], [0:32:1]>
+
+
+cp_global_to_local <B, [0:32:1, 0:32:1]>, core=0, <4096 /local_mem/, [0:32:1], [0:32:1]>
+
+}
+
+
+matmul core=0, matmul_unit=0, <0 /local_mem/, [0:32:1], [0:32:1]>, < 4096 /local_mem/, [0:32:1], [0:32:1]>, < 507904 /local_mem/, [0:32:1], [0:32:1]>, accumulator=True
+
+
+cp_local_to_global <507904 /local_mem/, [0:32:1], [0:32:1]>,  <C, [0:32:1, 0:32:1]>
+
+Core number: 0, Matmul unit number: 1
+
+{
+
+cp_global_to_local <A, [0:32:1, 32:64:1]>, core=0, <8192 /local_mem/, [0:32:1], [32:64:1]>
+
+
+cp_global_to_local <B, [32:64:1, 0:32:1]>, core=0, <12288 /local_mem/, [32:64:1], [0:32:1]>
+
+}
+
+
+matmul core=0, matmul_unit=1, <8192 /local_mem/, [0:32:1], [32:64:1]>, < 12288 /local_mem/, [32:64:1], [0:32:1]>, < 507904 /local_mem/, [0:32:1], [0:32:1]>, accumulator=True
+
+
+cp_local_to_global <507904 /local_mem/, [0:32:1], [0:32:1]>,  <C, [0:32:1, 0:32:1]>
+
+
+Reset the C array
+
+
+cp_global_to_local <C, [0:32:1, 0:32:1]>, core=0, <507904 /local_mem/, [0:32:1], [0:32:1]>
+
+Core number: 0, Matmul unit number: 2
+
+A is already available in the local memory and its offset is 0
+
+{
+
+cp_global_to_local <B, [0:32:1, 32:64:1]>, core=0, <20480 /local_mem/, [0:32:1], [32:64:1]>
+
+}
+
+
+matmul core=0, matmul_unit=2, <0 /local_mem/, [0:32:1], [0:32:1]>, < 20480 /local_mem/, [0:32:1], [32:64:1]>, < 507904 /local_mem/, [0:32:1], [32:64:1]>, accumulator=True
+
+
+cp_local_to_global <507904 /local_mem/, [0:32:1], [32:64:1]>,  <C, [0:32:1, 32:64:1]>
+
+Core number: 0, Matmul unit number: 3
+
+A is already available in the local memory and its offset is 8192
+
+{
+
+cp_global_to_local <B, [32:64:1, 32:64:1]>, core=0, <28672 /local_mem/, [32:64:1], [32:64:1]>
+
+}
+
+
+matmul core=0, matmul_unit=3, <8192 /local_mem/, [0:32:1], [32:64:1]>, < 28672 /local_mem/, [32:64:1], [32:64:1]>, < 507904 /local_mem/, [0:32:1], [32:64:1]>, accumulator=True
+
+
+cp_local_to_global <507904 /local_mem/, [0:32:1], [32:64:1]>,  <C, [0:32:1, 32:64:1]>
+
+
+Reset the C array
+
+
+cp_global_to_local <C, [0:32:1, 0:32:1]>, core=1, <507904 /local_mem/, [0:32:1], [0:32:1]>
+
+Core number: 1, Matmul unit number: 0
+
+{
+
+cp_global_to_local <A, [32:64:1, 0:32:1]>, core=1, <0 /local_mem/, [32:64:1], [0:32:1]>
+
+
+cp_global_to_local <B, [0:32:1, 0:32:1]>, core=1, <4096 /local_mem/, [0:32:1], [0:32:1]>
+
+}
+
+
+matmul core=1, matmul_unit=0, <0 /local_mem/, [32:64:1], [0:32:1]>, < 4096 /local_mem/, [0:32:1], [0:32:1]>, < 507904 /local_mem/, [32:64:1], [0:32:1]>, accumulator=True
+
+
+cp_local_to_global <507904 /local_mem/, [32:64:1], [0:32:1]>,  <C, [32:64:1, 0:32:1]>
+
+Core number: 1, Matmul unit number: 1
+
+{
+
+cp_global_to_local <A, [32:64:1, 32:64:1]>, core=1, <8192 /local_mem/, [32:64:1], [32:64:1]>
+
+
+cp_global_to_local <B, [32:64:1, 0:32:1]>, core=1, <12288 /local_mem/, [32:64:1], [0:32:1]>
+
+}
+
+
+matmul core=1, matmul_unit=1, <8192 /local_mem/, [32:64:1], [32:64:1]>, < 12288 /local_mem/, [32:64:1], [0:32:1]>, < 507904 /local_mem/, [32:64:1], [0:32:1]>, accumulator=True
+
+
+cp_local_to_global <507904 /local_mem/, [32:64:1], [0:32:1]>,  <C, [32:64:1, 0:32:1]>
+
+
+Reset the C array
+
+
+cp_global_to_local <C, [0:32:1, 0:32:1]>, core=1, <507904 /local_mem/, [0:32:1], [0:32:1]>
+
+Core number: 1, Matmul unit number: 2
+
+A is already available in the local memory and its offset is 0
+
+{
+
+cp_global_to_local <B, [0:32:1, 32:64:1]>, core=1, <20480 /local_mem/, [0:32:1], [32:64:1]>
+
+}
+
+
+matmul core=1, matmul_unit=2, <0 /local_mem/, [32:64:1], [0:32:1]>, < 20480 /local_mem/, [0:32:1], [32:64:1]>, < 507904 /local_mem/, [32:64:1], [32:64:1]>, accumulator=True
+
+
+cp_local_to_global <507904 /local_mem/, [32:64:1], [32:64:1]>,  <C, [32:64:1, 32:64:1]>
+
+Core number: 1, Matmul unit number: 3
+
+A is already available in the local memory and its offset is 8192
+
+{
+
+cp_global_to_local <B, [32:64:1, 32:64:1]>, core=1, <28672 /local_mem/, [32:64:1], [32:64:1]>
+
+}
+
+
+matmul core=1, matmul_unit=3, <8192 /local_mem/, [32:64:1], [32:64:1]>, < 28672 /local_mem/, [32:64:1], [32:64:1]>, < 507904 /local_mem/, [32:64:1], [32:64:1]>, accumulator=True
+
+
+cp_local_to_global <507904 /local_mem/, [32:64:1], [32:64:1]>,  <C, [32:64:1, 32:64:1]>
+
